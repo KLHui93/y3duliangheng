@@ -7,7 +7,7 @@
     <style>
         /* A4 paper print settings, 1cm margin */
         @page {
-            size: A4;
+            size: A4 landscape;
             margin: 1cm;
         }
 
@@ -143,11 +143,11 @@
 
             // Loop until the desired number of unique problems are generated
             while (problemCount < numProblems) {
-                // Array of all possible problem types
+                // Array of all possible problem types, including new mixed unit conversion types
                 const problemTypes = [
-                    'kg_g', 'g_kg', 'kg_g_mix_g', 'g_kg_mix_g',
-                    'l_ml', 'ml_l', 'l_ml_mix_ml', 'ml_l_mix_l',
-                    'm_cm', 'cm_m', 'm_cm_mix_cm', 'cm_m_mix_m'
+                    'kg_g', 'g_kg', 'kg_g_mix_g', 'g_kg_mix_kg_g',
+                    'l_ml', 'ml_l', 'l_ml_mix_ml', 'ml_l_mix_l_ml',
+                    'm_cm', 'cm_m', 'm_cm_mix_cm', 'cm_m_mix_m_cm'
                 ];
 
                 const type = problemTypes[Math.floor(Math.random() * problemTypes.length)];
@@ -172,7 +172,7 @@
                         problem = `${kgVal2} 公斤 ${gVal2} 克 = <input type="text" class="answer-box"> 克`;
                         problemKey += `_${kgVal2}_${gVal2}`;
                         break;
-                    case 'g_kg_mix_g':
+                    case 'g_kg_mix_kg_g':
                         const kgVal3 = Math.floor(Math.random() * 5) + 1;
                         const gVal3 = (Math.floor(Math.random() * 9) * 100) + 100;
                         problem = `${(kgVal3 * 1000) + gVal3} 克 = <input type="text" class="answer-box"> 公斤 <input type="text" class="answer-box"> 克`;
@@ -194,7 +194,7 @@
                         problem = `${lVal2} 升 ${mlVal2} 毫升 = <input type="text" class="answer-box"> 毫升`;
                         problemKey += `_${lVal2}_${mlVal2}`;
                         break;
-                    case 'ml_l_mix_l':
+                    case 'ml_l_mix_l_ml':
                         const lVal3 = Math.floor(Math.random() * 5) + 1;
                         const mlVal3 = (Math.floor(Math.random() * 9) * 100) + 100;
                         problem = `${(lVal3 * 1000) + mlVal3} 毫升 = <input type="text" class="answer-box"> 升 <input type="text" class="answer-box"> 毫升`;
@@ -216,7 +216,7 @@
                         problem = `${mVal2} 米 ${cmVal2} 厘米 = <input type="text" class="answer-box"> 厘米`;
                         problemKey += `_${mVal2}_${cmVal2}`;
                         break;
-                    case 'cm_m_mix_m':
+                    case 'cm_m_mix_m_cm':
                         const mVal3 = Math.floor(Math.random() * 5) + 1;
                         const cmVal3 = (Math.floor(Math.random() * 9) * 10) + 10;
                         problem = `${(mVal3 * 100) + cmVal3} 厘米 = <input type="text" class="answer-box"> 米 <input type="text" class="answer-box"> 厘米`;
