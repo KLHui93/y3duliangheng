@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>三年级度量衡换算练习题</title>
+    <style>
+        /* A4 paper print settings, 1cm margin */
+        @page {
+            size: A4;
+            margin: 1cm;
+        }
+
+        /* General body styles */
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f4f8;
+        }
+
+        /* Control panel styles */
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 12px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            flex-wrap: wrap;
+        }
+        .controls label, .controls input, .controls button {
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .controls input[type="number"] {
+            width: 80px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            text-align: center;
+        }
+        .controls button {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            background-color: #3b82f6;
+            transition: background-color 0.2s, transform 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .controls button:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        /* Page header for printing */
+        .page-header {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        /* Container for all problems */
+        .problems-container {
+            column-count: 3;
+            column-gap: 30px;
+        }
+
+        /* Individual problem item styles */
+        .problem-item {
+            font-size: 15px; /* Adjust font size for more questions per page */
+            margin-bottom: 15px;
+            break-inside: avoid-column; /* Prevents problem from being split across columns */
+        }
+        .problem-item input {
+            width: 80px;
+            border: none;
+            border-bottom: 1px dashed #4b5563;
+            font-size: 15px;
+            text-align: center;
+            background: transparent;
+        }
+        .problem-item span {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        /* Styles for printing */
+        @media print {
+            body {
+                padding: 0;
+                background-color: #fff;
+            }
+            .controls, .page-break {
+                display: none;
+            }
+            .problems-container {
+                column-count: 3;
+                column-gap: 20px;
+                display: block; /* Ensures column layout is applied correctly */
+            }
+            .problem-item {
+                margin-bottom: 10px; /* Reduced margin for tighter packing */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <label for="numProblems">生成题数：</label>
+        <input type="number" id="numProblems" value="60" min="1" max="200">
+        <button onclick="generateProblems()">生成题目</button>
+        <button onclick="window.print()">打印 (PDF)</button>
+    </div>
+
+    <div id="pageContent" class="page-content">
+        <div class="page-header">三年级度量衡换算练习题</div>
+        <div class="problems-container" id="problemsContainer"></div>
+    </div>
+
+    <script>
+        /**
+         * Generates a specified number of unique random measurement conversion problems.
+         */
+        function generateProblems() {
+            const numProblems = document.getElementById('numProblems').value;
+            const container = document.getElementById('problemsContainer');
+            container.innerHTML = ''; // Clear existing problems
+
+            // A Set to store unique problem keys to prevent duplicates
+            const generatedProblems = new Set();
+            let problemCount = 0;
+
+            // Loop until the desired number of unique problems are generated
+            while (problemCount < numProblems) {
+                // Array of all possible problem types
+                const problemTypes = [
+                    'kg_g', 'g_kg', 'kg_g_mix_g', 'g_kg_mix_g',
+                    'l_ml', 'ml_l', 'l_ml_mix_ml', 'ml_l_mix_l',
+                    'm_cm', 'cm_m', 'm_cm_mix_cm', 'cm_m_mix_m'
+                ];
+
+                const type = problemTypes[Math.floor(Math.random() * problemTypes.length)];
+                let problem = '';
+                let problemKey = type;
+
+                // Generate problem content and a unique key based on the type and values
+                switch (type) {
+                    case 'kg_g':
+                        const kgVal1 = Math.floor(Math.random() * 9) + 1; // 1-9 kg
+                        problem = `${kgVal1} 公斤 = <input type="text" class="answer-box"> 克`;
+                        problemKey += `_${kgVal1}`;
+                        break;
+                    case 'g_kg':
+                        const gVal1 = (Math.floor(Math.random() * 9) + 1) * 1000; // 1000-9000 g
+                        problem = `${gVal1} 克 = <input type="text" class="answer-box"> 公斤`;
+                        problemKey += `_${gVal1}`;
+                        break;
+                    case 'kg_g_mix_g':
+                        const kgVal2 = Math.floor(Math.random() * 5) + 1; // 1-5 kg
+                        const gVal2 = (Math.floor(Math.random() * 9) * 100) + 100; // 100-900 g
+                        problem = `${kgVal2} 公斤 ${gVal2} 克 = <input type="text" class="answer-box"> 克`;
+                        problemKey += `_${kgVal2}_${gVal2}`;
+                        break;
+                    case 'g_kg_mix_g':
+                        const kgVal3 = Math.floor(Math.random() * 5) + 1;
+                        const gVal3 = (Math.floor(Math.random() * 9) * 100) + 100;
+                        problem = `${(kgVal3 * 1000) + gVal3} 克 = <input type="text" class="answer-box"> 公斤 <input type="text" class="answer-box"> 克`;
+                        problemKey += `_${(kgVal3 * 1000) + gVal3}`;
+                        break;
+                    case 'l_ml':
+                        const lVal1 = Math.floor(Math.random() * 9) + 1; // 1-9 l
+                        problem = `${lVal1} 升 = <input type="text" class="answer-box"> 毫升`;
+                        problemKey += `_${lVal1}`;
+                        break;
+                    case 'ml_l':
+                        const mlVal1 = (Math.floor(Math.random() * 9) + 1) * 1000; // 1000-9000 ml
+                        problem = `${mlVal1} 毫升 = <input type="text" class="answer-box"> 升`;
+                        problemKey += `_${mlVal1}`;
+                        break;
+                    case 'l_ml_mix_ml':
+                        const lVal2 = Math.floor(Math.random() * 5) + 1; // 1-5 l
+                        const mlVal2 = (Math.floor(Math.random() * 9) * 100) + 100; // 100-900 ml
+                        problem = `${lVal2} 升 ${mlVal2} 毫升 = <input type="text" class="answer-box"> 毫升`;
+                        problemKey += `_${lVal2}_${mlVal2}`;
+                        break;
+                    case 'ml_l_mix_l':
+                        const lVal3 = Math.floor(Math.random() * 5) + 1;
+                        const mlVal3 = (Math.floor(Math.random() * 9) * 100) + 100;
+                        problem = `${(lVal3 * 1000) + mlVal3} 毫升 = <input type="text" class="answer-box"> 升 <input type="text" class="answer-box"> 毫升`;
+                        problemKey += `_${(lVal3 * 1000) + mlVal3}`;
+                        break;
+                    case 'm_cm':
+                        const mVal1 = Math.floor(Math.random() * 9) + 1; // 1-9 m
+                        problem = `${mVal1} 米 = <input type="text" class="answer-box"> 厘米`;
+                        problemKey += `_${mVal1}`;
+                        break;
+                    case 'cm_m':
+                        const cmVal1 = (Math.floor(Math.random() * 9) + 1) * 100; // 100-900 cm
+                        problem = `${cmVal1} 厘米 = <input type="text" class="answer-box"> 米`;
+                        problemKey += `_${cmVal1}`;
+                        break;
+                    case 'm_cm_mix_cm':
+                        const mVal2 = Math.floor(Math.random() * 5) + 1; // 1-5 m
+                        const cmVal2 = (Math.floor(Math.random() * 9) * 10) + 10; // 10-90 cm
+                        problem = `${mVal2} 米 ${cmVal2} 厘米 = <input type="text" class="answer-box"> 厘米`;
+                        problemKey += `_${mVal2}_${cmVal2}`;
+                        break;
+                    case 'cm_m_mix_m':
+                        const mVal3 = Math.floor(Math.random() * 5) + 1;
+                        const cmVal3 = (Math.floor(Math.random() * 9) * 10) + 10;
+                        problem = `${(mVal3 * 100) + cmVal3} 厘米 = <input type="text" class="answer-box"> 米 <input type="text" class="answer-box"> 厘米`;
+                        problemKey += `_${(mVal3 * 100) + cmVal3}`;
+                        break;
+                }
+
+                // Check if this problem is unique. If not, try again in the next loop iteration.
+                if (!generatedProblems.has(problemKey)) {
+                    generatedProblems.add(problemKey);
+                    
+                    const problemItem = document.createElement('div');
+                    problemItem.className = 'problem-item';
+                    problemItem.innerHTML = `<span>${problemCount + 1}.</span> ${problem}`;
+                    container.appendChild(problemItem);
+                    
+                    problemCount++;
+                }
+            }
+        }
+
+        // Generate problems on page load for immediate use
+        document.addEventListener('DOMContentLoaded', generateProblems);
+    </script>
+
+</body>
+</html>
