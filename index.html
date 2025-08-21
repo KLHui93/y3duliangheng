@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>三年级度量衡换算练习题</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* A4 paper print settings, 1cm margin */
         @page {
@@ -51,12 +52,31 @@
             border: none;
             border-radius: 8px;
             color: white;
-            background-color: #3b82f6;
             transition: background-color 0.2s, transform 0.2s;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        .controls button:hover {
+        
+        .controls #generateBtn {
+            background-color: #3b82f6;
+        }
+        .controls #generateBtn:hover {
             background-color: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .controls #printBtn {
+            background-color: #9ca3af;
+        }
+        .controls #printBtn:hover {
+            background-color: #6b7280;
+            transform: translateY(-2px);
+        }
+
+        .controls #checkBtn {
+            background-color: #10b981;
+        }
+        .controls #checkBtn:hover {
+            background-color: #059669;
             transform: translateY(-2px);
         }
 
@@ -67,6 +87,14 @@
             font-size: 28px;
             font-weight: bold;
             color: #1f2937;
+        }
+
+        .result-summary {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
         }
 
         /* Container for all problems */
@@ -82,13 +110,25 @@
             break-inside: avoid-column; /* Prevents problem from being split across columns */
         }
         .problem-item input {
-            width: 80px;
-            border: none;
-            border-bottom: 1px dashed #4b5563;
+            width: 60px; /* Make input smaller to look like a grid cell */
+            padding: 4px;
+            border: 1px solid #ccc; /* Grid-like border */
+            border-radius: 4px;
             font-size: 15px;
             text-align: center;
             background: transparent;
         }
+
+        .problem-item input.correct {
+            border-color: #10b981;
+            background-color: #e0f2f1;
+        }
+        
+        .problem-item input.incorrect {
+            border-color: #ef4444;
+            background-color: #fee2e2;
+        }
+        
         .problem-item span {
             font-weight: bold;
             margin-right: 5px;
@@ -100,7 +140,7 @@
                 padding: 0;
                 background-color: #fff;
             }
-            .controls, .page-break {
+            .controls, .page-break, .result-summary {
                 display: none;
             }
             .problems-container {
@@ -119,12 +159,14 @@
     <div class="controls">
         <label for="numProblems">生成题数：</label>
         <input type="number" id="numProblems" value="60" min="1" max="200">
-        <button onclick="generateProblems()">生成题目</button>
-        <button onclick="window.print()">打印 (PDF)</button>
+        <button id="generateBtn" onclick="generateProblems()">生成题目</button>
+        <button id="checkBtn" onclick="checkAnswers()">检查答案</button>
+        <button id="printBtn" onclick="window.print()">打印 (PDF)</button>
     </div>
 
     <div id="pageContent" class="page-content">
         <div class="page-header">三年级度量衡换算练习题</div>
+        <div id="resultSummary" class="result-summary" style="display: none;"></div>
         <div class="problems-container" id="problemsContainer"></div>
     </div>
 
@@ -136,6 +178,7 @@
             const numProblems = document.getElementById('numProblems').value;
             const container = document.getElementById('problemsContainer');
             container.innerHTML = ''; // Clear existing problems
+            document.getElementById('resultSummary').style.display = 'none';
 
             // A Set to store unique problem keys to prevent duplicates
             const generatedProblems = new Set();
@@ -153,89 +196,90 @@
                 const type = problemTypes[Math.floor(Math.random() * problemTypes.length)];
                 let problem = '';
                 let problemKey = type;
+                let answer = {};
 
                 // Generate problem content and a unique key based on the type and values
                 switch (type) {
                     case 'kg_g':
-                        // Generate a random number from 1 to 10
                         const kgVal1 = Math.floor(Math.random() * 10) + 1;
-                        problem = `${kgVal1} 公斤 = <input type="text" class="answer-box"> 克`;
+                        problem = `${kgVal1} 公斤 = <input type="text" class="answer-box" data-answer-type="g"> 克`;
                         problemKey += `_${kgVal1}`;
+                        answer = { g: kgVal1 * 1000 };
                         break;
                     case 'g_kg':
-                        // Generate a random number from 1000 to 10000, in steps of 1000
                         const gVal1 = (Math.floor(Math.random() * 10) + 1) * 1000;
-                        problem = `${gVal1} 克 = <input type="text" class="answer-box"> 公斤`;
+                        problem = `${gVal1} 克 = <input type="text" class="answer-box" data-answer-type="kg"> 公斤`;
                         problemKey += `_${gVal1}`;
+                        answer = { kg: gVal1 / 1000 };
                         break;
                     case 'kg_g_mix_g':
-                        // Generate a random number from 1 to 10 for kg, and 10 to 990 for g (multiples of 10)
                         const kgVal2 = Math.floor(Math.random() * 10) + 1;
                         const gVal2 = (Math.floor(Math.random() * 99) + 1) * 10;
-                        problem = `${kgVal2} 公斤 ${gVal2} 克 = <input type="text" class="answer-box"> 克`;
+                        problem = `${kgVal2} 公斤 ${gVal2} 克 = <input type="text" class="answer-box" data-answer-type="g"> 克`;
                         problemKey += `_${kgVal2}_${gVal2}`;
+                        answer = { g: (kgVal2 * 1000) + gVal2 };
                         break;
                     case 'g_kg_mix_kg_g':
-                        // Generate a random total value in grams where the grams part is a multiple of 10
                         const kgVal3 = Math.floor(Math.random() * 10) + 1;
                         const gVal3 = (Math.floor(Math.random() * 99) + 1) * 10;
                         const totalGrams = (kgVal3 * 1000) + gVal3;
-                        problem = `${totalGrams} 克 = <input type="text" class="answer-box"> 公斤 <input type="text" class="answer-box"> 克`;
+                        problem = `${totalGrams} 克 = <input type="text" class="answer-box" data-answer-type="kg"> 公斤 <input type="text" class="answer-box" data-answer-type="g"> 克`;
                         problemKey += `_${totalGrams}`;
+                        answer = { kg: kgVal3, g: gVal3 };
                         break;
                     case 'l_ml':
-                        // Generate a random number from 1 to 10
                         const lVal1 = Math.floor(Math.random() * 10) + 1;
-                        problem = `${lVal1} 升 = <input type="text" class="answer-box"> 毫升`;
+                        problem = `${lVal1} 升 = <input type="text" class="answer-box" data-answer-type="ml"> 毫升`;
                         problemKey += `_${lVal1}`;
+                        answer = { ml: lVal1 * 1000 };
                         break;
                     case 'ml_l':
-                        // Generate a random number from 1000 to 10000, in steps of 1000
                         const mlVal1 = (Math.floor(Math.random() * 10) + 1) * 1000;
-                        problem = `${mlVal1} 毫升 = <input type="text" class="answer-box"> 升`;
+                        problem = `${mlVal1} 毫升 = <input type="text" class="answer-box" data-answer-type="l"> 升`;
                         problemKey += `_${mlVal1}`;
+                        answer = { l: mlVal1 / 1000 };
                         break;
                     case 'l_ml_mix_ml':
-                        // Generate a random number from 1 to 10 for l, and 10 to 990 for ml (multiples of 10)
                         const lVal2 = Math.floor(Math.random() * 10) + 1;
                         const mlVal2 = (Math.floor(Math.random() * 99) + 1) * 10;
-                        problem = `${lVal2} 升 ${mlVal2} 毫升 = <input type="text" class="answer-box"> 毫升`;
+                        problem = `${lVal2} 升 ${mlVal2} 毫升 = <input type="text" class="answer-box" data-answer-type="ml"> 毫升`;
                         problemKey += `_${lVal2}_${mlVal2}`;
+                        answer = { ml: (lVal2 * 1000) + mlVal2 };
                         break;
                     case 'ml_l_mix_l_ml':
-                        // Generate a random total value in milliliters where the milliliters part is a multiple of 10
                         const lVal3 = Math.floor(Math.random() * 10) + 1;
                         const mlVal3 = (Math.floor(Math.random() * 99) + 1) * 10;
                         const totalMilliliters = (lVal3 * 1000) + mlVal3;
-                        problem = `${totalMilliliters} 毫升 = <input type="text" class="answer-box"> 升 <input type="text" class="answer-box"> 毫升`;
+                        problem = `${totalMilliliters} 毫升 = <input type="text" class="answer-box" data-answer-type="l"> 升 <input type="text" class="answer-box" data-answer-type="ml"> 毫升`;
                         problemKey += `_${totalMilliliters}`;
+                        answer = { l: lVal3, ml: mlVal3 };
                         break;
                     case 'm_cm':
-                        // Generate a random number from 1 to 10
                         const mVal1 = Math.floor(Math.random() * 10) + 1;
-                        problem = `${mVal1} 米 = <input type="text" class="answer-box"> 厘米`;
+                        problem = `${mVal1} 米 = <input type="text" class="answer-box" data-answer-type="cm"> 厘米`;
                         problemKey += `_${mVal1}`;
+                        answer = { cm: mVal1 * 100 };
                         break;
                     case 'cm_m':
-                        // Generate a random number from 100 to 1000, in steps of 100
                         const cmVal1 = (Math.floor(Math.random() * 10) + 1) * 100;
-                        problem = `${cmVal1} 厘米 = <input type="text" class="answer-box"> 米`;
+                        problem = `${cmVal1} 厘米 = <input type="text" class="answer-box" data-answer-type="m"> 米`;
                         problemKey += `_${cmVal1}`;
+                        answer = { m: cmVal1 / 100 };
                         break;
                     case 'm_cm_mix_cm':
-                        // Generate a random number from 1 to 10 for m, and 10 to 90 for cm (multiples of 10)
                         const mVal2 = Math.floor(Math.random() * 10) + 1;
                         const cmVal2 = (Math.floor(Math.random() * 9) + 1) * 10;
-                        problem = `${mVal2} 米 ${cmVal2} 厘米 = <input type="text" class="answer-box"> 厘米`;
+                        problem = `${mVal2} 米 ${cmVal2} 厘米 = <input type="text" class="answer-box" data-answer-type="cm"> 厘米`;
                         problemKey += `_${mVal2}_${cmVal2}`;
+                        answer = { cm: (mVal2 * 100) + cmVal2 };
                         break;
                     case 'cm_m_mix_m_cm':
-                        // Generate a random total value in centimeters where the centimeters part is a multiple of 10
                         const mVal3 = Math.floor(Math.random() * 10) + 1;
                         const cmVal3 = (Math.floor(Math.random() * 9) + 1) * 10;
                         const totalCentimeters = (mVal3 * 100) + cmVal3;
-                        problem = `${totalCentimeters} 厘米 = <input type="text" class="answer-box"> 米 <input type="text" class="answer-box"> 厘米`;
+                        problem = `${totalCentimeters} 厘米 = <input type="text" class="answer-box" data-answer-type="m"> 米 <input type="text" class="answer-box" data-answer-type="cm"> 厘米`;
                         problemKey += `_${totalCentimeters}`;
+                        answer = { m: mVal3, cm: cmVal3 };
                         break;
                 }
 
@@ -246,12 +290,78 @@
                     const problemItem = document.createElement('div');
                     problemItem.className = 'problem-item';
                     problemItem.innerHTML = `<span>${problemCount + 1}.</span> ${problem}`;
-                    container.appendChild(problemItem);
                     
+                    // Store the correct answers in data attributes
+                    for (const type in answer) {
+                        const input = problemItem.querySelector(`[data-answer-type="${type}"]`);
+                        if (input) {
+                            input.setAttribute('data-answer', answer[type]);
+                        }
+                    }
+
+                    container.appendChild(problemItem);
                     problemCount++;
                 }
             }
         }
+
+        /**
+         * Checks the user's answers and provides visual feedback.
+         * It only checks input fields that are not empty.
+         */
+        function checkAnswers() {
+            const problems = document.querySelectorAll('.problem-item');
+            let correctCount = 0;
+            let checkedProblemsCount = 0;
+
+            problems.forEach(problem => {
+                const inputs = problem.querySelectorAll('.answer-box');
+                let allCorrectForProblem = true;
+                let hasAnswer = false;
+
+                inputs.forEach(input => {
+                    const userAnswer = input.value.trim();
+                    const correctAnswer = input.getAttribute('data-answer');
+
+                    // If the input is empty, skip checking it and leave its state unchanged
+                    if (userAnswer === '') {
+                        return;
+                    }
+                    
+                    hasAnswer = true;
+                    
+                    // Reset classes before checking
+                    input.classList.remove('correct', 'incorrect');
+                    
+                    if (userAnswer === String(correctAnswer)) {
+                        input.classList.add('correct');
+                    } else {
+                        input.classList.add('incorrect');
+                        allCorrectForProblem = false;
+                    }
+                });
+
+                if (hasAnswer) {
+                    checkedProblemsCount++;
+                    if (allCorrectForProblem) {
+                        correctCount++;
+                    }
+                }
+            });
+
+            const summary = document.getElementById('resultSummary');
+            if (checkedProblemsCount > 0) {
+                summary.textContent = `你答对了 ${correctCount} 题，总共 ${checkedProblemsCount} 题。`;
+                summary.style.display = 'block';
+            } else {
+                summary.style.display = 'none';
+            }
+        }
+
+        /**
+         * The showAnswers function has been removed to prevent students from cheating.
+         * If needed, this functionality can be re-added later.
+         */
 
         // Generate problems on page load for immediate use
         document.addEventListener('DOMContentLoaded', generateProblems);
