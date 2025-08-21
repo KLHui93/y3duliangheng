@@ -187,6 +187,82 @@
             border-top: 1px solid #d1d5db;
         }
 
+        /* Pop-up modal styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 90%;
+            text-align: left;
+            position: relative;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.open .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-content h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #3b82f6;
+            text-align: center;
+        }
+
+        .modal-content p, .modal-content li {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .modal-content ul {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+
+        .modal-content button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .modal-content button:hover {
+            background-color: #2563eb;
+        }
+
+
         /* Keyframe animations for visual feedback */
         @keyframes pulseCorrect {
             0% { transform: scale(1); }
@@ -209,7 +285,7 @@
                 padding: 0;
                 background-color: #fff;
             }
-            .controls, .page-break, .result-summary {
+            .controls, .page-break, .result-summary, .modal {
                 display: none;
             }
             .problems-container {
@@ -224,6 +300,33 @@
     </style>
 </head>
 <body>
+
+    <!-- Game/Instruction Modal -->
+    <div id="instructionModal" class="modal">
+        <div class="modal-content">
+            <h2>游戏说明</h2>
+            <p>这个工具可以帮助你快速生成三年级度量衡（升/毫升、公斤/克、米/厘米）换算练习题。</p>
+            <p><strong>操作说明：</strong></p>
+            <ul>
+                <li><strong>生成题目：</strong> 点击「生成题目」按钮来创建一套新的练习题。</li>
+                <li><strong>填写姓名：</strong> 在「学生姓名」框中输入你的名字，它会出现在打印的练习题上。</li>
+                <li><strong>检查答案：</strong>
+                    <ul>
+                        <li><strong>单题检查：</strong> 在答案框中输入答案后，按下 **Enter 键** 即可立即检查。</li>
+                        <li><strong>总检查：</strong> 填写完所有题目后，点击「检查所有答案」按钮，即可看到总分。</li>
+                    </ul>
+                </li>
+                <li><strong>保存与打印：</strong>
+                    <ul>
+                        <li><strong>生成图片：</strong> 点击「生成图片」按钮，可以将整个练习题页面保存为 PNG 图片。</li>
+                        <li><strong>打印：</strong> 点击「打印 (PDF)」按钮，可以打印或保存为 PDF 格式，方便离线使用。</li>
+                    </ul>
+                </li>
+            </ul>
+            <button onclick="closeModal()">好的，我知道了</button>
+        </div>
+    </div>
+
 
     <div class="controls">
         <label for="numProblems">生成题数：</label>
@@ -603,11 +706,26 @@
             const day = today.getDate().toString().padStart(2, '0');
             currentDateElement.textContent = `日期：${year}年${month}月${day}日`;
         }
+        
+        /**
+         * Opens the instruction modal.
+         */
+        function openModal() {
+            document.getElementById('instructionModal').classList.add('open');
+        }
 
-        // Generate problems and update the info bar on page load for immediate use
+        /**
+         * Closes the instruction modal.
+         */
+        function closeModal() {
+            document.getElementById('instructionModal').classList.remove('open');
+        }
+
+        // Generate problems, update the info bar, and show the modal on page load
         document.addEventListener('DOMContentLoaded', () => {
             generateProblems();
             updateInfoBar();
+            openModal(); // Show the instruction modal on page load
         });
     </script>
 
