@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>三年级度量衡换算练习题</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         /* A4 paper print settings, 1cm margin */
         @page {
@@ -80,11 +81,11 @@
             transform: translateY(-2px);
         }
 
-        .controls #emailBtn {
-            background-color: #2D63C4;
+        .controls #generateImageBtn {
+            background-color: #f59e0b; /* A distinct color for the new button */
         }
-        .controls #emailBtn:hover {
-            background-color: #264A92;
+        .controls #generateImageBtn:hover {
+            background-color: #d97706;
             transform: translateY(-2px);
         }
 
@@ -169,7 +170,7 @@
         <input type="number" id="numProblems" value="60" min="1" max="200">
         <button id="generateBtn" onclick="generateProblems()">生成题目</button>
         <button id="checkBtn" onclick="checkAnswers()">检查答案</button>
-        <button id="emailBtn" onclick="emailResults()">发送邮件结果</button>
+        <button id="generateImageBtn" onclick="generateImage()">生成图片</button>
         <button id="printBtn" onclick="window.print()">打印 (PDF)</button>
     </div>
 
@@ -368,75 +369,54 @@
         }
 
         /**
-         * The showAnswers function has been removed to prevent students from cheating.
-         * If needed, this functionality can be re-added later.
+         * Generates and downloads a PNG image of the content.
          */
-
-        /**
-         * Generates an email draft with the results of the practice session.
-         */
-        function emailResults() {
-            // Get the problems container
-            const problemsContainer = document.getElementById('problemsContainer');
-            if (problemsContainer.children.length === 0) {
-                alert('请先生成题目再发送邮件。');
+        function generateImage() {
+            // Target the main content area to be captured
+            const pageContent = document.getElementById('pageContent');
+            
+            // Check if there is content to capture
+            if (pageContent.children.length <= 1) { // 1 child is the header
+                alert('请先生成题目和作答，再生成图片。');
                 return;
             }
 
-            // Get the summary text
-            const summary = document.getElementById('resultSummary').textContent;
-
-            // Generate HTML content for the email body
-            let emailBodyHtml = `
-                <p><strong>${document.querySelector('.page-header').textContent}</strong></p>
-                <p>${summary}</p>
-                <hr>
-                <p><strong>详细结果:</strong></p>
-                <div style="font-family: 'Inter', Arial, sans-serif; line-height: 1.6;">
-            `;
-
-            // Loop through each problem item to get the question and answer
-            const problems = document.querySelectorAll('.problem-item');
-            problems.forEach((problem, index) => {
-                let problemHtml = problem.innerHTML;
-
-                // Replace the input fields with a styled span containing the user's answer and correct answer
-                const inputs = problem.querySelectorAll('input');
-                inputs.forEach(input => {
-                    const userAnswer = input.value.trim();
-                    const correctAnswer = input.getAttribute('data-answer');
-
-                    let color = '#333';
-                    if (input.classList.contains('correct')) {
-                        color = '#10b981'; // Green
-                    } else if (input.classList.contains('incorrect')) {
-                        color = '#ef4444'; // Red
-                    }
-
-                    // For email, show the user's answer and the correct answer if incorrect
-                    let answerDisplay = `<span style="color:${color}; font-weight:bold;">${userAnswer === '' ? '(未作答)' : userAnswer}</span>`;
-                    if (userAnswer !== '' && userAnswer !== String(correctAnswer)) {
-                        answerDisplay += ` (正确答案: ${correctAnswer})`;
-                    }
-
-                    problemHtml = problemHtml.replace(/<input[^>]*>/, answerDisplay);
-                });
-                
-                emailBodyHtml += `<p>${problemHtml}</p>`;
-            });
-
-            emailBodyHtml += `</div>`;
-
-            // Mailto URL components
-            const recipient = 'g-01141737@moe-dl.edu.my';
-            const subject = '三年级度量衡换算练习题结果';
+            // Temporarily hide the buttons for a cleaner image
+            const controls = document.querySelector('.controls');
+            controls.style.display = 'none';
             
-            // Encode the HTML body for the mailto URL
-            const mailtoUrl = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBodyHtml)}`;
+            // Use html2canvas to render the content as a canvas
+            html2canvas(pageContent, { scale: 2, useCORS: true }).then(canvas => {
+                // Restore the buttons
+                controls.style.display = 'flex';
 
-            // Open the default email client
-            window.location.href = mailtoUrl;
+                // Get the image data as a URL
+                const imageDataUrl = canvas.toDataURL('image/png');
+                
+                // Create a temporary link element to trigger the download
+                const link = document.createElement('a');
+                link.href = imageDataUrl;
+                link.download = '度量衡练习题-结果.png';
+                
+                // Append the link to the body and click it to trigger download
+                document.body.appendChild(link);
+                link.click();
+                
+                // Clean up the temporary link element
+                document.body.removeChild(link);
+            }).catch(error => {
+                // Restore the buttons in case of an error
+                controls.style.display = 'flex';
+                console.error('An error occurred while generating the image:', error);
+                alert('生成图片时出错，请重试。');
+            });
         }
+        
+        // This function is no longer needed since a better method is provided.
+        // It's commented out to prevent confusion.
+        // function emailResults() {
+        //     alert('此功能已被更好的“生成图片”功能取代。请点击生成图片，再手动附加到邮件发送。');
+        // }
 
         // Generate problems on page load for immediate use
         document.addEventListener('DOMContentLoaded', generateProblems);
