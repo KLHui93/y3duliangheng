@@ -80,6 +80,14 @@
             transform: translateY(-2px);
         }
 
+        .controls #emailBtn {
+            background-color: #2D63C4;
+        }
+        .controls #emailBtn:hover {
+            background-color: #264A92;
+            transform: translateY(-2px);
+        }
+
         /* Page header for printing */
         .page-header {
             text-align: center;
@@ -105,16 +113,16 @@
 
         /* Individual problem item styles */
         .problem-item {
-            font-size: 15px; /* Adjust font size for more questions per page */
+            font-size: 18px; /* Increased font size */
             margin-bottom: 15px;
             break-inside: avoid-column; /* Prevents problem from being split across columns */
         }
         .problem-item input {
-            width: 60px; /* Make input smaller to look like a grid cell */
+            width: 80px; /* Increased input width to match font size */
             padding: 4px;
             border: 1px solid #ccc; /* Grid-like border */
             border-radius: 4px;
-            font-size: 15px;
+            font-size: 18px; /* Increased font size */
             text-align: center;
             background: transparent;
         }
@@ -161,6 +169,7 @@
         <input type="number" id="numProblems" value="60" min="1" max="200">
         <button id="generateBtn" onclick="generateProblems()">生成题目</button>
         <button id="checkBtn" onclick="checkAnswers()">检查答案</button>
+        <button id="emailBtn" onclick="emailResults()">发送邮件结果</button>
         <button id="printBtn" onclick="window.print()">打印 (PDF)</button>
     </div>
 
@@ -362,6 +371,72 @@
          * The showAnswers function has been removed to prevent students from cheating.
          * If needed, this functionality can be re-added later.
          */
+
+        /**
+         * Generates an email draft with the results of the practice session.
+         */
+        function emailResults() {
+            // Get the problems container
+            const problemsContainer = document.getElementById('problemsContainer');
+            if (problemsContainer.children.length === 0) {
+                alert('请先生成题目再发送邮件。');
+                return;
+            }
+
+            // Get the summary text
+            const summary = document.getElementById('resultSummary').textContent;
+
+            // Generate HTML content for the email body
+            let emailBodyHtml = `
+                <p><strong>${document.querySelector('.page-header').textContent}</strong></p>
+                <p>${summary}</p>
+                <hr>
+                <p><strong>详细结果:</strong></p>
+                <div style="font-family: 'Inter', Arial, sans-serif; line-height: 1.6;">
+            `;
+
+            // Loop through each problem item to get the question and answer
+            const problems = document.querySelectorAll('.problem-item');
+            problems.forEach((problem, index) => {
+                let problemHtml = problem.innerHTML;
+
+                // Replace the input fields with a styled span containing the user's answer and correct answer
+                const inputs = problem.querySelectorAll('input');
+                inputs.forEach(input => {
+                    const userAnswer = input.value.trim();
+                    const correctAnswer = input.getAttribute('data-answer');
+
+                    let color = '#333';
+                    if (input.classList.contains('correct')) {
+                        color = '#10b981'; // Green
+                    } else if (input.classList.contains('incorrect')) {
+                        color = '#ef4444'; // Red
+                    }
+
+                    // For email, show the user's answer and the correct answer if incorrect
+                    let answerDisplay = `<span style="color:${color}; font-weight:bold;">${userAnswer === '' ? '(未作答)' : userAnswer}</span>`;
+                    if (userAnswer !== '' && userAnswer !== String(correctAnswer)) {
+                        answerDisplay += ` (正确答案: ${correctAnswer})`;
+                    }
+
+                    problemHtml = problemHtml.replace(/<input[^>]*>/, answerDisplay);
+                });
+                
+                emailBodyHtml += `<p>${problemHtml}</p>`;
+            });
+
+            emailBodyHtml += `</div>`;
+
+            // Mailto URL components
+            const recipient = 'g-01141737@moe-dl.edu.my';
+            const subject = '三年级度量衡换算练习题结果';
+            
+            // Encode the HTML body for the mailto URL
+            const mailtoUrl = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBodyHtml)}`;
+
+            // Open the default email client
+            window.location.href = mailtoUrl;
+        }
 
         // Generate problems on page load for immediate use
         document.addEventListener('DOMContentLoaded', generateProblems);
