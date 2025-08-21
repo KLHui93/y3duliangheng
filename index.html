@@ -6,6 +6,10 @@
     <title>三年级度量衡换算练习题</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <!-- Google Fonts for a better look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
     <style>
         /* A4 paper print settings, 1cm margin */
         @page {
@@ -15,12 +19,12 @@
 
         /* General body styles */
         body {
-            font-family: 'Inter', Arial, sans-serif;
+            font-family: 'Noto Sans SC', sans-serif;
             line-height: 1.6;
             color: #333;
             margin: 0;
             padding: 20px;
-            background-color: #f0f4f8;
+            background-color: #e2e8f0; /* A slightly more pleasant background color */
         }
 
         /* Control panel styles */
@@ -33,77 +37,104 @@
             padding: 20px;
             border-radius: 12px;
             background-color: #ffffff;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Stronger shadow for depth */
             flex-wrap: wrap;
         }
         .controls label, .controls input, .controls button {
             font-size: 16px;
             font-weight: 500;
         }
-        .controls input[type="number"] {
-            width: 80px;
-            padding: 8px 12px;
+        .controls input[type="number"], .controls input[type="text"] {
+            width: 120px; /* Wider input fields */
+            padding: 10px 14px;
             border-radius: 8px;
             border: 1px solid #d1d5db;
             text-align: center;
+            transition: all 0.3s ease;
+        }
+        .controls input:focus {
+            outline: none;
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.5);
         }
         .controls button {
-            padding: 10px 20px;
+            padding: 12px 24px;
             cursor: pointer;
             border: none;
             border-radius: 8px;
             color: white;
-            transition: background-color 0.2s, transform 0.2s;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-weight: 700;
+            transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         
+        .controls button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
         .controls #generateBtn {
             background-color: #3b82f6;
         }
-        .controls #generateBtn:hover {
+        .controls #generateBtn:active {
             background-color: #2563eb;
-            transform: translateY(-2px);
+            transform: translateY(0);
         }
 
         .controls #printBtn {
-            background-color: #9ca3af;
-        }
-        .controls #printBtn:hover {
             background-color: #6b7280;
-            transform: translateY(-2px);
+        }
+        .controls #printBtn:active {
+            background-color: #4b5563;
+            transform: translateY(0);
         }
 
         .controls #checkBtn {
             background-color: #10b981;
         }
-        .controls #checkBtn:hover {
+        .controls #checkBtn:active {
             background-color: #059669;
-            transform: translateY(-2px);
+            transform: translateY(0);
         }
 
         .controls #generateImageBtn {
-            background-color: #f59e0b; /* A distinct color for the new button */
+            background-color: #f59e0b;
         }
-        .controls #generateImageBtn:hover {
+        .controls #generateImageBtn:active {
             background-color: #d97706;
-            transform: translateY(-2px);
+            transform: translateY(0);
         }
 
-        /* Page header for printing */
+        /* Page header and info bar styles */
         .page-header {
             text-align: center;
             margin-bottom: 20px;
-            font-size: 28px;
-            font-weight: bold;
+            font-size: 32px;
+            font-weight: 700;
             color: #1f2937;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .info-bar {
+            background-color: #ffffff;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .result-summary {
             text-align: center;
-            font-size: 20px;
+            font-size: 22px;
             font-weight: bold;
             margin-bottom: 20px;
-            color: #333;
+            color: #1f2937;
+            animation: fadeIn 0.5s ease-in-out;
         }
 
         /* Container for all problems */
@@ -114,33 +145,62 @@
 
         /* Individual problem item styles */
         .problem-item {
-            font-size: 18px; /* Increased font size */
-            margin-bottom: 15px;
-            break-inside: avoid-column; /* Prevents problem from being split across columns */
+            font-size: 20px; /* Increased font size */
+            margin-bottom: 18px;
+            break-inside: avoid-column;
         }
         .problem-item input {
-            width: 80px; /* Increased input width to match font size */
-            padding: 4px;
-            border: 1px solid #ccc; /* Grid-like border */
-            border-radius: 4px;
-            font-size: 18px; /* Increased font size */
+            width: 80px;
+            padding: 6px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            font-size: 20px;
             text-align: center;
-            background: transparent;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
         }
 
         .problem-item input.correct {
             border-color: #10b981;
             background-color: #e0f2f1;
+            animation: pulseCorrect 0.5s ease-in-out;
         }
         
         .problem-item input.incorrect {
             border-color: #ef4444;
             background-color: #fee2e2;
+            animation: shake 0.3s ease-in-out;
         }
         
         .problem-item span {
             font-weight: bold;
             margin-right: 5px;
+        }
+
+        /* Copyright info styles */
+        .copyright-info {
+            font-size: 14px;
+            color: #6b7280;
+            margin-top: 2rem;
+            text-align: center;
+            padding-top: 1rem;
+            border-top: 1px solid #d1d5db;
+        }
+
+        /* Keyframe animations for visual feedback */
+        @keyframes pulseCorrect {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* Styles for printing */
@@ -155,10 +215,10 @@
             .problems-container {
                 column-count: 3;
                 column-gap: 20px;
-                display: block; /* Ensures column layout is applied correctly */
+                display: block;
             }
             .problem-item {
-                margin-bottom: 10px; /* Reduced margin for tighter packing */
+                margin-bottom: 10px;
             }
         }
     </style>
@@ -171,23 +231,74 @@
         <label for="studentName">学生姓名：</label>
         <input type="text" id="studentName" placeholder="在此输入你的名字">
         <button id="generateBtn" onclick="generateProblems()">生成题目</button>
-        <button id="checkBtn" onclick="checkAnswers()">检查答案</button>
+        <button id="checkBtn" onclick="checkAllAnswers()">检查所有答案</button>
         <button id="generateImageBtn" onclick="generateImage()">生成图片</button>
         <button id="printBtn" onclick="window.print()">打印 (PDF)</button>
     </div>
 
     <div id="pageContent" class="page-content">
         <div class="page-header">三年级度量衡换算练习题</div>
-        <!-- This info-bar will display the student's name and the current date -->
-        <div class="info-bar flex justify-between items-center text-lg mb-4">
+        <div class="info-bar">
             <div id="studentNameDisplay">姓名：</div>
             <div id="currentDate"></div>
         </div>
         <div id="resultSummary" class="result-summary" style="display: none;"></div>
         <div class="problems-container" id="problemsContainer"></div>
+        <div class="copyright-info">
+            <p>许峵育老师 巴音新村华文小学</p>
+        </div>
     </div>
 
     <script>
+        // Use Web Audio API for simple sound generation without external files
+        let audioContext;
+
+        /**
+         * Plays a sound for a correct answer.
+         */
+        function playCorrectSound() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.type = 'sine';
+            oscillator.frequency.value = 880; // A higher pitch for correct
+            gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+
+            // Fade out the sound to avoid a harsh click
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+
+        /**
+         * Plays a sound for an incorrect answer.
+         */
+        function playIncorrectSound() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.type = 'sine';
+            oscillator.frequency.value = 220; // A lower pitch for incorrect
+            gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+
+            // Fade out the sound
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+
         /**
          * Generates a specified number of unique random measurement conversion problems.
          */
@@ -219,82 +330,88 @@
                 switch (type) {
                     case 'kg_g':
                         const kgVal1 = Math.floor(Math.random() * 10) + 1;
-                        problem = `${kgVal1} 公斤 = <input type="text" class="answer-box" data-answer-type="g"> 克`;
+                        problem = `${kgVal1} 公斤 = <input type="text" class="answer-box" data-answer-type="g" oninput="checkSingleAnswer(this)"> 克`;
                         problemKey += `_${kgVal1}`;
                         answer = { g: kgVal1 * 1000 };
                         break;
                     case 'g_kg':
                         const gVal1 = (Math.floor(Math.random() * 10) + 1) * 1000;
-                        problem = `${gVal1} 克 = <input type="text" class="answer-box" data-answer-type="kg"> 公斤`;
+                        problem = `${gVal1} 克 = <input type="text" class="answer-box" data-answer-type="kg" oninput="checkSingleAnswer(this)"> 公斤`;
                         problemKey += `_${gVal1}`;
                         answer = { kg: gVal1 / 1000 };
                         break;
                     case 'kg_g_mix_g':
                         const kgVal2 = Math.floor(Math.random() * 10) + 1;
-                        const gVal2 = (Math.floor(Math.random() * 99) + 1) * 10;
-                        problem = `${kgVal2} 公斤 ${gVal2} 克 = <input type="text" class="answer-box" data-answer-type="g"> 克`;
+                        // Generate a random number from 1 to 999 for grams, to allow for cases with a zero
+                        const gVal2 = Math.floor(Math.random() * 999) + 1;
+                        problem = `${kgVal2} 公斤 ${gVal2} 克 = <input type="text" class="answer-box" data-answer-type="g" oninput="checkSingleAnswer(this)"> 克`;
                         problemKey += `_${kgVal2}_${gVal2}`;
                         answer = { g: (kgVal2 * 1000) + gVal2 };
                         break;
                     case 'g_kg_mix_kg_g':
                         const kgVal3 = Math.floor(Math.random() * 10) + 1;
-                        const gVal3 = (Math.floor(Math.random() * 99) + 1) * 10;
+                        // Generate a random number from 1 to 999 for grams, to allow for cases with a zero
+                        const gVal3 = Math.floor(Math.random() * 999) + 1;
                         const totalGrams = (kgVal3 * 1000) + gVal3;
-                        problem = `${totalGrams} 克 = <input type="text" class="answer-box" data-answer-type="kg"> 公斤 <input type="text" class="answer-box" data-answer-type="g"> 克`;
+                        problem = `${totalGrams} 克 = <input type="text" class="answer-box" data-answer-type="kg" oninput="checkSingleAnswer(this)"> 公斤 <input type="text" class="answer-box" data-answer-type="g" oninput="checkSingleAnswer(this)"> 克`;
                         problemKey += `_${totalGrams}`;
                         answer = { kg: kgVal3, g: gVal3 };
                         break;
                     case 'l_ml':
                         const lVal1 = Math.floor(Math.random() * 10) + 1;
-                        problem = `${lVal1} 升 = <input type="text" class="answer-box" data-answer-type="ml"> 毫升`;
+                        problem = `${lVal1} 升 = <input type="text" class="answer-box" data-answer-type="ml" oninput="checkSingleAnswer(this)"> 毫升`;
                         problemKey += `_${lVal1}`;
                         answer = { ml: lVal1 * 1000 };
                         break;
                     case 'ml_l':
                         const mlVal1 = (Math.floor(Math.random() * 10) + 1) * 1000;
-                        problem = `${mlVal1} 毫升 = <input type="text" class="answer-box" data-answer-type="l"> 升`;
+                        problem = `${mlVal1} 毫升 = <input type="text" class="answer-box" data-answer-type="l" oninput="checkSingleAnswer(this)"> 升`;
                         problemKey += `_${mlVal1}`;
                         answer = { l: mlVal1 / 1000 };
                         break;
                     case 'l_ml_mix_ml':
                         const lVal2 = Math.floor(Math.random() * 10) + 1;
-                        const mlVal2 = (Math.floor(Math.random() * 99) + 1) * 10;
-                        problem = `${lVal2} 升 ${mlVal2} 毫升 = <input type="text" class="answer-box" data-answer-type="ml"> 毫升`;
+                        // Generate a random number from 1 to 999 for milliliters, to allow for cases with a zero
+                        const mlVal2 = Math.floor(Math.random() * 999) + 1;
+                        problem = `${lVal2} 升 ${mlVal2} 毫升 = <input type="text" class="answer-box" data-answer-type="ml" oninput="checkSingleAnswer(this)"> 毫升`;
                         problemKey += `_${lVal2}_${mlVal2}`;
                         answer = { ml: (lVal2 * 1000) + mlVal2 };
                         break;
                     case 'ml_l_mix_l_ml':
                         const lVal3 = Math.floor(Math.random() * 10) + 1;
-                        const mlVal3 = (Math.floor(Math.random() * 99) + 1) * 10;
+                        // Generate a random number from 1 to 999 for milliliters, to allow for cases with a zero
+                        const mlVal3 = Math.floor(Math.random() * 999) + 1;
                         const totalMilliliters = (lVal3 * 1000) + mlVal3;
-                        problem = `${totalMilliliters} 毫升 = <input type="text" class="answer-box" data-answer-type="l"> 升 <input type="text" class="answer-box" data-answer-type="ml"> 毫升`;
+                        problem = `${totalMilliliters} 毫升 = <input type="text" class="answer-box" data-answer-type="l" oninput="checkSingleAnswer(this)"> 升 <input type="text" class="answer-box" data-answer-type="ml" oninput="checkSingleAnswer(this)"> 毫升`;
                         problemKey += `_${totalMilliliters}`;
                         answer = { l: lVal3, ml: mlVal3 };
                         break;
                     case 'm_cm':
                         const mVal1 = Math.floor(Math.random() * 10) + 1;
-                        problem = `${mVal1} 米 = <input type="text" class="answer-box" data-answer-type="cm"> 厘米`;
+                        problem = `${mVal1} 米 = <input type="text" class="answer-box" data-answer-type="cm" oninput="checkSingleAnswer(this)"> 厘米`;
                         problemKey += `_${mVal1}`;
                         answer = { cm: mVal1 * 100 };
                         break;
                     case 'cm_m':
                         const cmVal1 = (Math.floor(Math.random() * 10) + 1) * 100;
-                        problem = `${cmVal1} 厘米 = <input type="text" class="answer-box" data-answer-type="m"> 米`;
+                        problem = `${cmVal1} 厘米 = <input type="text" class="answer-box" data-answer-type="m" oninput="checkSingleAnswer(this)"> 米`;
                         problemKey += `_${cmVal1}`;
                         answer = { m: cmVal1 / 100 };
                         break;
                     case 'm_cm_mix_cm':
                         const mVal2 = Math.floor(Math.random() * 10) + 1;
-                        const cmVal2 = (Math.floor(Math.random() * 9) + 1) * 10;
-                        problem = `${mVal2} 米 ${cmVal2} 厘米 = <input type="text" class="answer-box" data-answer-type="cm"> 厘米`;
+                        // Generate a random number from 1 to 99 for centimeters, to allow for cases with a zero
+                        const cmVal2 = Math.floor(Math.random() * 99) + 1;
+                        problem = `${mVal2} 米 ${cmVal2} 厘米 = <input type="text" class="answer-box" data-answer-type="cm" oninput="checkSingleAnswer(this)"> 厘米`;
                         problemKey += `_${mVal2}_${cmVal2}`;
                         answer = { cm: (mVal2 * 100) + cmVal2 };
                         break;
                     case 'cm_m_mix_m_cm':
                         const mVal3 = Math.floor(Math.random() * 10) + 1;
-                        const cmVal3 = (Math.floor(Math.random() * 9) + 1) * 10;
+                        // Generate a random number from 1 to 99 for centimeters, to allow for cases with a zero
+                        const cmVal3 = Math.floor(Math.random() * 99) + 1;
                         const totalCentimeters = (mVal3 * 100) + cmVal3;
-                        problem = `${totalCentimeters} 厘米 = <input type="text" class="answer-box" data-answer-type="m"> 米 <input type="text" class="answer-box" data-answer-type="cm"> 厘米`;
+                        problem = `${totalCentimeters} 厘米 = <input type="text" class="answer-box" data-answer-type="m" oninput="checkSingleAnswer(this)"> 米 <input type="text" class="answer-box" data-answer-type="cm" oninput="checkSingleAnswer(this)"> 厘米`;
                         problemKey += `_${totalCentimeters}`;
                         answer = { m: mVal3, cm: cmVal3 };
                         break;
@@ -323,13 +440,39 @@
         }
 
         /**
-         * Checks the user's answers and provides visual feedback.
-         * It only checks input fields that are not empty.
+         * Checks a single input field's answer and provides immediate feedback.
+         * @param {HTMLInputElement} inputElement The input element to check.
          */
-        function checkAnswers() {
+        function checkSingleAnswer(inputElement) {
+            const userAnswer = inputElement.value.trim();
+            const correctAnswer = inputElement.getAttribute('data-answer');
+
+            // Do nothing if the input is empty
+            if (userAnswer === '') {
+                inputElement.classList.remove('correct', 'incorrect');
+                return;
+            }
+
+            // Remove previous feedback classes
+            inputElement.classList.remove('correct', 'incorrect');
+
+            if (userAnswer === String(correctAnswer)) {
+                inputElement.classList.add('correct');
+                playCorrectSound();
+            } else {
+                inputElement.classList.add('incorrect');
+                playIncorrectSound();
+            }
+        }
+
+        /**
+         * Checks all user's answers and provides a summary.
+         */
+        function checkAllAnswers() {
             const problems = document.querySelectorAll('.problem-item');
             let correctCount = 0;
             let checkedProblemsCount = 0;
+            let hasIncorrectAnswer = false;
 
             problems.forEach(problem => {
                 const inputs = problem.querySelectorAll('.answer-box');
@@ -339,22 +482,16 @@
                 inputs.forEach(input => {
                     const userAnswer = input.value.trim();
                     const correctAnswer = input.getAttribute('data-answer');
-
-                    // If the input is empty, skip checking it and leave its state unchanged
+                    
                     if (userAnswer === '') {
                         return;
                     }
-                    
                     hasAnswer = true;
                     
-                    // Reset classes before checking
-                    input.classList.remove('correct', 'incorrect');
-                    
-                    if (userAnswer === String(correctAnswer)) {
-                        input.classList.add('correct');
-                    } else {
-                        input.classList.add('incorrect');
+                    // Real-time check already handles visual feedback
+                    if (userAnswer !== String(correctAnswer)) {
                         allCorrectForProblem = false;
+                        hasIncorrectAnswer = true;
                     }
                 });
 
@@ -366,6 +503,15 @@
                 }
             });
 
+            // Play sound based on overall result
+            if (checkedProblemsCount > 0) {
+                if (hasIncorrectAnswer) {
+                    playIncorrectSound();
+                } else {
+                    playCorrectSound();
+                }
+            }
+            
             const summary = document.getElementById('resultSummary');
             if (checkedProblemsCount > 0) {
                 summary.textContent = `你答对了 ${correctCount} 题，总共 ${checkedProblemsCount} 题。`;
@@ -403,7 +549,11 @@
                 // Create a temporary link element to trigger the download
                 const link = document.createElement('a');
                 link.href = imageDataUrl;
-                link.download = '度量衡练习题-结果.png';
+                
+                // Get the student's name for the filename
+                const studentName = document.getElementById('studentName').value.trim();
+                const fileName = studentName ? `度量衡练习题-${studentName}-结果.png` : '度量衡练习题-结果.png';
+                link.download = fileName;
                 
                 // Append the link to the body and click it to trigger download
                 document.body.appendChild(link);
@@ -419,12 +569,6 @@
             });
         }
         
-        // This function is no longer needed since a better method is provided.
-        // It's commented out to prevent confusion.
-        // function emailResults() {
-        //     alert('此功能已被更好的“生成图片”功能取代。请点击生成图片，再手动附加到邮件发送。');
-        // }
-
         /**
          * Updates the student's name and the current date on the page.
          */
