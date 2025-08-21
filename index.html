@@ -168,6 +168,8 @@
     <div class="controls">
         <label for="numProblems">生成题数：</label>
         <input type="number" id="numProblems" value="60" min="1" max="200">
+        <label for="studentName">学生姓名：</label>
+        <input type="text" id="studentName" placeholder="在此输入你的名字">
         <button id="generateBtn" onclick="generateProblems()">生成题目</button>
         <button id="checkBtn" onclick="checkAnswers()">检查答案</button>
         <button id="generateImageBtn" onclick="generateImage()">生成图片</button>
@@ -176,6 +178,11 @@
 
     <div id="pageContent" class="page-content">
         <div class="page-header">三年级度量衡换算练习题</div>
+        <!-- This info-bar will display the student's name and the current date -->
+        <div class="info-bar flex justify-between items-center text-lg mb-4">
+            <div id="studentNameDisplay">姓名：</div>
+            <div id="currentDate"></div>
+        </div>
         <div id="resultSummary" class="result-summary" style="display: none;"></div>
         <div class="problems-container" id="problemsContainer"></div>
     </div>
@@ -418,8 +425,33 @@
         //     alert('此功能已被更好的“生成图片”功能取代。请点击生成图片，再手动附加到邮件发送。');
         // }
 
-        // Generate problems on page load for immediate use
-        document.addEventListener('DOMContentLoaded', generateProblems);
+        /**
+         * Updates the student's name and the current date on the page.
+         */
+        function updateInfoBar() {
+            const studentNameInput = document.getElementById('studentName');
+            const studentNameDisplay = document.getElementById('studentNameDisplay');
+            const currentDateElement = document.getElementById('currentDate');
+
+            // Update name display based on input
+            studentNameInput.addEventListener('input', () => {
+                const name = studentNameInput.value.trim();
+                studentNameDisplay.textContent = name ? `姓名：${name}` : '姓名：';
+            });
+            
+            // Format and display the current date
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = (today.getMonth() + 1).toString().padStart(2, '0');
+            const day = today.getDate().toString().padStart(2, '0');
+            currentDateElement.textContent = `日期：${year}年${month}月${day}日`;
+        }
+
+        // Generate problems and update the info bar on page load for immediate use
+        document.addEventListener('DOMContentLoaded', () => {
+            generateProblems();
+            updateInfoBar();
+        });
     </script>
 
 </body>
