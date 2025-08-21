@@ -300,6 +300,19 @@
         }
 
         /**
+         * Handles the keydown event on an input field.
+         * Checks the answer only if the Enter key is pressed.
+         * @param {KeyboardEvent} event The keyboard event.
+         * @param {HTMLInputElement} inputElement The input element where the event occurred.
+         */
+        function handleEnterKey(event, inputElement) {
+            if (event.key === 'Enter') {
+                checkSingleAnswer(inputElement);
+            }
+        }
+
+
+        /**
          * Generates a specified number of unique random measurement conversion problems.
          */
         function generateProblems() {
@@ -330,13 +343,13 @@
                 switch (type) {
                     case 'kg_g':
                         const kgVal1 = Math.floor(Math.random() * 10) + 1;
-                        problem = `${kgVal1} 公斤 = <input type="text" class="answer-box" data-answer-type="g" oninput="checkSingleAnswer(this)"> 克`;
+                        problem = `${kgVal1} 公斤 = <input type="text" class="answer-box" data-answer-type="g" onkeydown="handleEnterKey(event, this)"> 克`;
                         problemKey += `_${kgVal1}`;
                         answer = { g: kgVal1 * 1000 };
                         break;
                     case 'g_kg':
                         const gVal1 = (Math.floor(Math.random() * 10) + 1) * 1000;
-                        problem = `${gVal1} 克 = <input type="text" class="answer-box" data-answer-type="kg" oninput="checkSingleAnswer(this)"> 公斤`;
+                        problem = `${gVal1} 克 = <input type="text" class="answer-box" data-answer-type="kg" onkeydown="handleEnterKey(event, this)"> 公斤`;
                         problemKey += `_${gVal1}`;
                         answer = { kg: gVal1 / 1000 };
                         break;
@@ -344,7 +357,7 @@
                         const kgVal2 = Math.floor(Math.random() * 10) + 1;
                         // Generate a random number from 1 to 999 for grams, to allow for cases with a zero
                         const gVal2 = Math.floor(Math.random() * 999) + 1;
-                        problem = `${kgVal2} 公斤 ${gVal2} 克 = <input type="text" class="answer-box" data-answer-type="g" oninput="checkSingleAnswer(this)"> 克`;
+                        problem = `${kgVal2} 公斤 ${gVal2} 克 = <input type="text" class="answer-box" data-answer-type="g" onkeydown="handleEnterKey(event, this)"> 克`;
                         problemKey += `_${kgVal2}_${gVal2}`;
                         answer = { g: (kgVal2 * 1000) + gVal2 };
                         break;
@@ -353,19 +366,19 @@
                         // Generate a random number from 1 to 999 for grams, to allow for cases with a zero
                         const gVal3 = Math.floor(Math.random() * 999) + 1;
                         const totalGrams = (kgVal3 * 1000) + gVal3;
-                        problem = `${totalGrams} 克 = <input type="text" class="answer-box" data-answer-type="kg" oninput="checkSingleAnswer(this)"> 公斤 <input type="text" class="answer-box" data-answer-type="g" oninput="checkSingleAnswer(this)"> 克`;
+                        problem = `${totalGrams} 克 = <input type="text" class="answer-box" data-answer-type="kg" onkeydown="handleEnterKey(event, this)"> 公斤 <input type="text" class="answer-box" data-answer-type="g" onkeydown="handleEnterKey(event, this)"> 克`;
                         problemKey += `_${totalGrams}`;
                         answer = { kg: kgVal3, g: gVal3 };
                         break;
                     case 'l_ml':
                         const lVal1 = Math.floor(Math.random() * 10) + 1;
-                        problem = `${lVal1} 升 = <input type="text" class="answer-box" data-answer-type="ml" oninput="checkSingleAnswer(this)"> 毫升`;
+                        problem = `${lVal1} 升 = <input type="text" class="answer-box" data-answer-type="ml" onkeydown="handleEnterKey(event, this)"> 毫升`;
                         problemKey += `_${lVal1}`;
                         answer = { ml: lVal1 * 1000 };
                         break;
                     case 'ml_l':
                         const mlVal1 = (Math.floor(Math.random() * 10) + 1) * 1000;
-                        problem = `${mlVal1} 毫升 = <input type="text" class="answer-box" data-answer-type="l" oninput="checkSingleAnswer(this)"> 升`;
+                        problem = `${mlVal1} 毫升 = <input type="text" class="answer-box" data-answer-type="l" onkeydown="handleEnterKey(event, this)"> 升`;
                         problemKey += `_${mlVal1}`;
                         answer = { l: mlVal1 / 1000 };
                         break;
@@ -373,7 +386,7 @@
                         const lVal2 = Math.floor(Math.random() * 10) + 1;
                         // Generate a random number from 1 to 999 for milliliters, to allow for cases with a zero
                         const mlVal2 = Math.floor(Math.random() * 999) + 1;
-                        problem = `${lVal2} 升 ${mlVal2} 毫升 = <input type="text" class="answer-box" data-answer-type="ml" oninput="checkSingleAnswer(this)"> 毫升`;
+                        problem = `${lVal2} 升 ${mlVal2} 毫升 = <input type="text" class="answer-box" data-answer-type="ml" onkeydown="handleEnterKey(event, this)"> 毫升`;
                         problemKey += `_${lVal2}_${mlVal2}`;
                         answer = { ml: (lVal2 * 1000) + mlVal2 };
                         break;
@@ -382,19 +395,19 @@
                         // Generate a random number from 1 to 999 for milliliters, to allow for cases with a zero
                         const mlVal3 = Math.floor(Math.random() * 999) + 1;
                         const totalMilliliters = (lVal3 * 1000) + mlVal3;
-                        problem = `${totalMilliliters} 毫升 = <input type="text" class="answer-box" data-answer-type="l" oninput="checkSingleAnswer(this)"> 升 <input type="text" class="answer-box" data-answer-type="ml" oninput="checkSingleAnswer(this)"> 毫升`;
+                        problem = `${totalMilliliters} 毫升 = <input type="text" class="answer-box" data-answer-type="l" onkeydown="handleEnterKey(event, this)"> 升 <input type="text" class="answer-box" data-answer-type="ml" onkeydown="handleEnterKey(event, this)"> 毫升`;
                         problemKey += `_${totalMilliliters}`;
                         answer = { l: lVal3, ml: mlVal3 };
                         break;
                     case 'm_cm':
                         const mVal1 = Math.floor(Math.random() * 10) + 1;
-                        problem = `${mVal1} 米 = <input type="text" class="answer-box" data-answer-type="cm" oninput="checkSingleAnswer(this)"> 厘米`;
+                        problem = `${mVal1} 米 = <input type="text" class="answer-box" data-answer-type="cm" onkeydown="handleEnterKey(event, this)"> 厘米`;
                         problemKey += `_${mVal1}`;
                         answer = { cm: mVal1 * 100 };
                         break;
                     case 'cm_m':
                         const cmVal1 = (Math.floor(Math.random() * 10) + 1) * 100;
-                        problem = `${cmVal1} 厘米 = <input type="text" class="answer-box" data-answer-type="m" oninput="checkSingleAnswer(this)"> 米`;
+                        problem = `${cmVal1} 厘米 = <input type="text" class="answer-box" data-answer-type="m" onkeydown="handleEnterKey(event, this)"> 米`;
                         problemKey += `_${cmVal1}`;
                         answer = { m: cmVal1 / 100 };
                         break;
@@ -402,7 +415,7 @@
                         const mVal2 = Math.floor(Math.random() * 10) + 1;
                         // Generate a random number from 1 to 99 for centimeters, to allow for cases with a zero
                         const cmVal2 = Math.floor(Math.random() * 99) + 1;
-                        problem = `${mVal2} 米 ${cmVal2} 厘米 = <input type="text" class="answer-box" data-answer-type="cm" oninput="checkSingleAnswer(this)"> 厘米`;
+                        problem = `${mVal2} 米 ${cmVal2} 厘米 = <input type="text" class="answer-box" data-answer-type="cm" onkeydown="handleEnterKey(event, this)"> 厘米`;
                         problemKey += `_${mVal2}_${cmVal2}`;
                         answer = { cm: (mVal2 * 100) + cmVal2 };
                         break;
@@ -411,7 +424,7 @@
                         // Generate a random number from 1 to 99 for centimeters, to allow for cases with a zero
                         const cmVal3 = Math.floor(Math.random() * 99) + 1;
                         const totalCentimeters = (mVal3 * 100) + cmVal3;
-                        problem = `${totalCentimeters} 厘米 = <input type="text" class="answer-box" data-answer-type="m" oninput="checkSingleAnswer(this)"> 米 <input type="text" class="answer-box" data-answer-type="cm" oninput="checkSingleAnswer(this)"> 厘米`;
+                        problem = `${totalCentimeters} 厘米 = <input type="text" class="answer-box" data-answer-type="m" onkeydown="handleEnterKey(event, this)"> 米 <input type="text" class="answer-box" data-answer-type="cm" onkeydown="handleEnterKey(event, this)"> 厘米`;
                         problemKey += `_${totalCentimeters}`;
                         answer = { m: mVal3, cm: cmVal3 };
                         break;
